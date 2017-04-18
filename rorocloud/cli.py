@@ -1,4 +1,5 @@
 from __future__ import print_function
+import getpass
 import click
 from .client import Client
 
@@ -15,7 +16,17 @@ def cli():
 def login():
     """Log into rorocloud service.
     """
-    pass
+    email = input("E-mail: ")
+    pw = getpass.getpass("Password: ")
+    client.login(email, pw)
+
+
+@cli.command()
+def whoami():
+    """prints the details of current user.
+    """
+    user = client.whoami()
+    print(user['email'])
 
 
 @cli.command(context_settings={"allow_interspersed_args": False})

@@ -9,7 +9,10 @@
     :copyright: (c) 2017 by rorodata
     :license: Apache 2, see LICENSE for more details.
 """
+import sys
 import os
+from os.path import expanduser, join, exists
+import configparser
 import requests
 
 class Client(object):
@@ -17,7 +20,31 @@ class Client(object):
     """
     def __init__(self, base_url=None):
         self.base_url = base_url or get_rorocloud_default_url()
-        self.auth = ("guest", "guest")
+
+        self._configfile = join(expanduser("~"), ".rorocloudrc")
+        self.auth = self._read_auth()
+
+    def _read_auth(self):
+        if not exists(self._configfile):
+            return
+
+        p = configparser.ConfigParser(default_section='default')
+        p.read(self._configfile)
+        try:
+            email = p.get("default", "email")
+            token = p.get("default", "token")
+            return (email, token)
+        except configparser.NoOptionError:
+            pass
+
+    def _write_auth(self, email, token):
+        p = configparser.ConfigParser(default_section='default')
+        p.read(self._configfile)
+        p.set(None, "email", email)
+        p.set(None, "token", token)
+        with open(self._configfile, "w") as f:
+            p.write(f)
+        print("Token saved in", self._configfile)
 
     def get(self, path):
         url = self.base_url.rstrip("/") + path
@@ -50,6 +77,19 @@ class Client(object):
         payload = {"command": list(command)}
         data = self.post("/jobs", payload)
         return Job(data)
+
+    def login(self, email, password):
+        payload = {"email": email, "password": password}
+        data = self.post("/login", payload)
+        if "token" in data:
+            print("Login successful.")
+            self._write_auth(email, data['token'])
+        else:
+            print("Login failed.", file=sys.stderr)
+
+    def whoami(self):
+        return self.get("/whoami")
+
 
 class Job(object):
     def __init__(self, data):
