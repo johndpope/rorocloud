@@ -43,6 +43,18 @@ def status():
 
 @cli.command()
 @click.argument("job_id")
+def logs(job_id):
+    """Shows the logs of job_id.
+    """
+    response = client.get_logs(job_id)
+    if response.get('message', None):
+        print(response['message'])
+    else:
+        for line in response['logs']:
+            print(line)
+
+@cli.command()
+@click.argument("job_id")
 def stop(job_id):
     """Stops a job.
     """

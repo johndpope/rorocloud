@@ -38,6 +38,10 @@ class Client(object):
         path = "/jobs/" + job_id
         return Job(self.get(path))
 
+    def get_logs(self, job_id):
+        path = "/jobs/" + job_id + "/logs"
+        return self.get(path)
+
     def stop_job(self, job_id):
         path = "/jobs/" + job_id
         self.delete(path)
