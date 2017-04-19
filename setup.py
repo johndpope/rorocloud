@@ -3,6 +3,8 @@ from setuptools import setup, find_packages
 setup(
     name='rorocloud',
     version='0.1',
+    author='rorodata',
+    author_email='rorodata.team@gmail.com',
     packages=find_packages(),
     include_package_data=True,
     install_requires=[
