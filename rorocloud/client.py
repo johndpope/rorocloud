@@ -95,6 +95,7 @@ class Job(object):
     def __init__(self, data):
         self.data = data
         self.id = data['jobid']
+        self.status = data['status']
         self.command_args = data['details']['command']
         self.command = " ".join(self.command_args)
 

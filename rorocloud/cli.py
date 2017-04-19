@@ -1,4 +1,5 @@
 from __future__ import print_function
+import time
 import getpass
 import click
 from .client import Client
@@ -32,7 +33,8 @@ def whoami():
 @cli.command(context_settings={"allow_interspersed_args": False})
 @click.argument("command", nargs=-1)
 @click.option("--shell/--no-shell", default=False, help="execute the given command using shell")
-def run(command, shell=None):
+@click.option("--foreground", default=False, is_flag=True)
+def run(command, shell=None, foreground=False):
     """Runs a command in the cloud.
 
     Typical usage:
@@ -40,8 +42,9 @@ def run(command, shell=None):
         rorocloud run python myscript.py
     """
     job = client.run(command, shell=shell)
-    print("Created new job", job.id)
-
+    print("-- created new job", job.id)
+    if foreground:
+        _logs(job.id, follow=True)
 
 @cli.command()
 def status():
@@ -53,16 +56,32 @@ def status():
         print(line)
 
 @cli.command()
+@click.option("-f", "--follow", default=False, is_flag=True)
 @click.argument("job_id")
-def logs(job_id):
+def logs(job_id, follow=False):
+    _logs(job_id, follow=follow)
+
+def _logs(job_id, follow=False):
     """Shows the logs of job_id.
     """
-    response = client.get_logs(job_id)
-    if response.get('message', None):
-        print(response['message'])
+    if follow:
+        seen = 0
+        while True:
+            response = client.get_logs(job_id)
+            logs = response.get('logs', [])
+            for line in logs[seen:]:
+                print(line['message'])
+            seen = len(logs)
+            job = client.get_job(job_id)
+            if job.status == 'command exited':
+                break
+            time.sleep(0.5)
     else:
-        for line in response['logs']:
-            print(line)
+        if response.get('message', None):
+            print(response['message'])
+        else:
+            for line in response['logs']:
+                print(line['message'])
 
 @cli.command()
 @click.argument("job_id")
