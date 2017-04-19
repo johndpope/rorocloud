@@ -71,11 +71,27 @@ def _parse_time(timestr):
 
 @cli.command()
 @click.option("-f", "--follow", default=False, is_flag=True)
+@click.option("-t", "--show-timestamp", default=False, is_flag=True)
 @click.argument("job_id")
-def logs(job_id, follow=False):
-    _logs(job_id, follow=follow)
+def logs(job_id, follow=False, show_timestamp=False):
+    _logs(job_id, follow=follow, show_timestamp=show_timestamp)
 
-def _logs(job_id, follow=False):
+def _display_logs(logs, show_timestamp=False):
+    def parse_time(timestamp):
+        t = datetime.fromtimestamp(timestamp//1000)
+        return t.isoformat()
+
+    if show_timestamp:
+        log_pattern = "[{timestamp}] {message}"
+    else:
+        log_pattern = "{message}"
+
+    for line in logs:
+        line['timestamp'] = parse_time(line['timestamp'])
+        print(log_pattern.format(**line))
+
+
+def _logs(job_id, follow=False, show_timestamp=False):
     """Shows the logs of job_id.
     """
     if follow:
@@ -83,19 +99,18 @@ def _logs(job_id, follow=False):
         while True:
             response = client.get_logs(job_id)
             logs = response.get('logs', [])
-            for line in logs[seen:]:
-                print(line['message'])
+            _display_logs(logs[seen:], show_timestamp=show_timestamp)
             seen = len(logs)
             job = client.get_job(job_id)
             if job.status == 'command exited':
                 break
             time.sleep(0.5)
     else:
+        response = client.get_logs(job_id)
         if response.get('message', None):
             print(response['message'])
         else:
-            for line in response['logs']:
-                print(line['message'])
+            _display_logs(response.get('logs'), show_timestamp=show_timestamp)
 
 @cli.command()
 @click.argument("job_id")
