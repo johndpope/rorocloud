@@ -98,6 +98,9 @@ class Job(object):
         self.status = data['status']
         self.command_args = data['details']['command']
         self.command = " ".join(self.command_args)
+        self.status = data["status"]
+        self.start_time = data["start_time"]
+        self.end_time = data["end_time"]
 
 def get_rorocloud_default_url():
     return os.getenv("ROROCLOUD_URL") or "https://rorocloud.rorodata.com/"

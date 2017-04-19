@@ -1,8 +1,10 @@
 from __future__ import print_function
 import time
+from datetime import datetime, timedelta
 import getpass
 import click
 from .client import Client
+import web
 
 client = Client()
 
@@ -50,10 +52,22 @@ def run(command, shell=None, foreground=False):
 def status():
     """Shows the status of recent jobs.
     """
-    print("{:10s} {:20s}".format("JOB ID", "CMD"))
+    print("{:10s} {:17s} {:15s} {:>8s} {:20s}".format("JOB ID", "STATUS", "WHEN", "TIME", "CMD"))
     for job in client.jobs():
-        line = "{id:10s} {command:20s}".format(id=job.id, command=job.command)
+        start = _parse_time(job.start_time)
+        end = _parse_time(job.end_time)
+        total_time = (end - start)
+        total_time = timedelta(total_time.days, total_time.seconds)
+        line = "{id:10s} {status:17s} {when:15s} {time:>8s} {command:20s}".format(
+            id=job.id, command=job.command, status=job.status,
+            when=web.datestr(start), time=str(total_time)
+        )
         print(line)
+
+def _parse_time(timestr):
+    if not timestr:
+        return datetime.utcnow()
+    return datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S.%f")
 
 @cli.command()
 @click.option("-f", "--follow", default=False, is_flag=True)
