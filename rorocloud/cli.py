@@ -1,6 +1,7 @@
 from __future__ import print_function
 import time
 from datetime import datetime, timedelta
+from tabulate import tabulate
 import getpass
 import click
 from .client import Client
@@ -49,20 +50,19 @@ def run(command, shell=None, foreground=False):
         _logs(job.id, follow=True)
 
 @cli.command()
-def status():
+@click.option("-a","--all", default=False, is_flag=True)
+def status(all=False):
     """Shows the status of recent jobs.
     """
-    print("{:10s} {:17s} {:15s} {:>8s} {:20s}".format("JOB ID", "STATUS", "WHEN", "TIME", "CMD"))
-    for job in client.jobs():
+    jobs = client.jobs(all=all)
+    rows = []
+    for job in jobs:
         start = _parse_time(job.start_time)
         end = _parse_time(job.end_time)
         total_time = (end - start)
         total_time = timedelta(total_time.days, total_time.seconds)
-        line = "{id:10s} {status:17s} {when:15s} {time:>8s} {command:20s}".format(
-            id=job.id, command=job.command, status=job.status,
-            when=web.datestr(start), time=str(total_time)
-        )
-        print(line)
+        rows.append([job.id, job.status, web.datestr(start), str(total_time), job.command])
+    print(tabulate(rows, headers=['JOBID', 'STATUS', 'WHEN', 'TIME', 'CMD']))
 
 def _parse_time(timestr):
     if not timestr:

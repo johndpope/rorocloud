@@ -58,8 +58,11 @@ class Client(object):
         url = self.base_url.rstrip("/") + path
         return requests.delete(url, auth=self.auth).json()
 
-    def jobs(self):
-        return [Job(job) for job in self.get("/jobs")]
+    def jobs(self, all=False):
+        if all:
+            return [Job(job) for job in self.get("/jobs?all=true")]
+        else:
+            return [Job(job) for job in self.get("/jobs")]
 
     def get_job(self, job_id):
         path = "/jobs/" + job_id
