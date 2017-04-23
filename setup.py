@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='rorocloud',
-    version='0.1.1',
+    version='0.1.2',
     author='rorodata',
     author_email='rorodata.team@gmail.com',
     packages=find_packages(),
