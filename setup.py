@@ -14,6 +14,7 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        rorocloud=rorocloud.cli:cli
+        rorocloud=rorocloud.cli:main
+        rorocloud-dev=rorocloud.cli:main_dev
     ''',
 )

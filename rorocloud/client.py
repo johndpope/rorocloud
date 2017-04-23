@@ -15,14 +15,21 @@ from os.path import expanduser, join, exists
 import configparser
 import requests
 
+config = {
+    "ROROCLOUD_URL": "https://rorocloud.rorodata.com/"
+}
+
 class Client(object):
     """The rorocloud client.
     """
     def __init__(self, base_url=None):
-        self.base_url = base_url or get_rorocloud_default_url()
+        self.base_url = base_url or self._get_config("ROROCLOUD_URL")
 
         self._configfile = join(expanduser("~"), ".rorocloudrc")
         self.auth = self._read_auth()
+
+    def _get_config(self, key):
+        return os.getenv(key) or config.get(key)
 
     def _read_auth(self):
         if not exists(self._configfile):
@@ -101,7 +108,3 @@ class Job(object):
         self.status = data["status"]
         self.start_time = data["start_time"]
         self.end_time = data["end_time"]
-
-def get_rorocloud_default_url():
-    return os.getenv("ROROCLOUD_URL") or "https://rorocloud.rorodata.com/"
-

@@ -3,16 +3,18 @@ import time
 from datetime import datetime, timedelta
 import getpass
 import click
-from .client import Client
+from .client import Client, config
 import web
 
-client = Client()
+# initialized in cli
+client = None
 
 @click.group()
 def cli():
     """rorocloud is the command-line interface to the rorocloud service.
     """
-    pass
+    global client
+    client = Client()
 
 
 @cli.command()
@@ -118,3 +120,11 @@ def stop(job_id):
     """Stops a job.
     """
     client.stop_job(job_id)
+
+
+def main():
+    cli()
+
+def main_dev():
+    config["ROROCLOUD_URL"] = "https://rorocloud.staging.rorodata.com/"
+    cli()
