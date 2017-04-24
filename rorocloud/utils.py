@@ -13,3 +13,9 @@ def datestr(then, now=None):
     if 'milliseconds' in s or 'microseconds' in s:
         s = 'Just now'
     return s
+
+
+def truncate(text, width):
+    if len(text) > width:
+        text = text[:width-3] + "..."
+    return text
