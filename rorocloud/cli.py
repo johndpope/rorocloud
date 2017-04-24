@@ -90,6 +90,8 @@ def _parse_time(timestr):
 @click.option("-t", "--show-timestamp", default=False, is_flag=True)
 @click.argument("job_id")
 def logs(job_id, follow=False, show_timestamp=False):
+    """Prints the logs of a job.
+    """
     _logs(job_id, follow=follow, show_timestamp=show_timestamp)
 
 def _display_logs(logs, show_timestamp=False):
