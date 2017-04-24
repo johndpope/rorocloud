@@ -1,4 +1,16 @@
 import web
+import logging
+
+logger = logging.getLogger("rorocloud")
+
+
+def setup_logger(verbose=False):
+    if verbose:
+        level = logging.DEBUG
+    else:
+        level = logging.INFO
+    logging.basicConfig(format='%(message)s', level=level)
+
 
 def datestr(then, now=None):
     """Converts time to a human readable string.

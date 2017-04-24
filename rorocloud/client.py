@@ -22,6 +22,7 @@ except ImportError:
 
 import requests
 from . import __version__
+from .utils import logger
 
 config = {
     "ROROCLOUD_URL": "https://rorocloud.rorodata.com/"
@@ -72,17 +73,27 @@ class Client(object):
 
         print("Token saved in", self._configfile)
 
-    def get(self, path):
+    def _request(self, method, path, **kwargs):
         url = self.base_url.rstrip("/") + path
-        return requests.get(url, auth=self.auth, headers=self.HEADERS).json()
+        try:
+            response = requests.request(method, url,
+                auth=self.auth,
+                headers=self.HEADERS)
+        except requests.exceptions.ConnectionError:
+            logger.error("ERROR: Unable to connect to the rorocloud server.")
+            sys.exit(1)
+
+        return response.json()
+
+    def get(self, path):
+        return self._request("GET", path)
 
     def post(self, path, data):
-        url = self.base_url.rstrip("/") + path
-        return requests.post(url, json=data, auth=self.auth, headers=self.HEADERS).json()
+        logger.debug("data %s", data)
+        return self._request("POST", path, json=data)
 
     def delete(self, path):
-        url = self.base_url.rstrip("/") + path
-        return requests.delete(url, auth=self.auth, headers=self.HEADERS).json()
+        return self._request("DELETE", path)
 
     def jobs(self, all=False):
         if all:

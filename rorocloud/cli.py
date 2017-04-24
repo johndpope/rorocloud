@@ -6,7 +6,7 @@ from tabulate import tabulate
 import getpass
 import click
 from .client import Client, config
-from .utils import datestr, truncate
+from .utils import datestr, truncate, setup_logger
 from . import __version__
 
 # initialized in cli
@@ -14,12 +14,13 @@ client = None
 
 @click.group()
 @click.version_option(version=__version__)
-def cli():
+@click.option("--verbose", is_flag=True, default=False, help="Enable verbose logging")
+def cli(verbose=False):
     """rorocloud is the command-line interface to the rorocloud service.
     """
     global client
     client = Client()
-
+    setup_logger(verbose=verbose)
 
 @cli.command()
 def help():
