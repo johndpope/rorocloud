@@ -1,4 +1,5 @@
 from __future__ import print_function
+from builtins import input
 import time
 from datetime import datetime, timedelta
 from tabulate import tabulate

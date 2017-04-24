@@ -9,10 +9,17 @@
     :copyright: (c) 2017 by rorodata
     :license: Apache 2, see LICENSE for more details.
 """
+from __future__ import print_function
 import sys
 import os
 from os.path import expanduser, join, exists
-import configparser
+
+try:
+    import configparser
+except ImportError:
+    # Python 2
+    import ConfigParser as configparser
+
 import requests
 from . import __version__
 
@@ -41,7 +48,7 @@ class Client(object):
         if not exists(self._configfile):
             return
 
-        p = configparser.ConfigParser(default_section='default')
+        p = configparser.ConfigParser()
         p.read(self._configfile)
         try:
             email = p.get("default", "email")
@@ -51,12 +58,18 @@ class Client(object):
             pass
 
     def _write_auth(self, email, token):
-        p = configparser.ConfigParser(default_section='default')
+        p = configparser.ConfigParser()
         p.read(self._configfile)
-        p.set(None, "email", email)
-        p.set(None, "token", token)
+
+        if not p.has_section("default"):
+            p.add_section("default")
+
+        p.set("default", "email", email)
+        p.set("default", "token", token)
+
         with open(self._configfile, "w") as f:
             p.write(f)
+
         print("Token saved in", self._configfile)
 
     def get(self, path):
