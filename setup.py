@@ -10,7 +10,8 @@ setup(
     install_requires=[
         'click==6.7',
         'requests==2.13.0',
-        'web.py>=0.40.dev'
+        'web.py>=0.40.dev',
+        'tabulate==0.7.7'
     ],
     entry_points='''
         [console_scripts]
