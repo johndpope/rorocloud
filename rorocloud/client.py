@@ -14,6 +14,7 @@ import os
 from os.path import expanduser, join, exists
 import configparser
 import requests
+from . import __version__
 
 config = {
     "ROROCLOUD_URL": "https://rorocloud.rorodata.com/"
@@ -22,6 +23,11 @@ config = {
 class Client(object):
     """The rorocloud client.
     """
+    USER_AGENT = "rorocloud/{}".format(__version__)
+    HEADERS = {
+        "User-Agent": USER_AGENT
+    }
+
     def __init__(self, base_url=None):
         self.base_url = base_url or self._get_config("ROROCLOUD_URL")
 
@@ -55,15 +61,15 @@ class Client(object):
 
     def get(self, path):
         url = self.base_url.rstrip("/") + path
-        return requests.get(url, auth=self.auth).json()
+        return requests.get(url, auth=self.auth, headers=self.HEADERS).json()
 
     def post(self, path, data):
         url = self.base_url.rstrip("/") + path
-        return requests.post(url, json=data, auth=self.auth).json()
+        return requests.post(url, json=data, auth=self.auth, headers=self.HEADERS).json()
 
     def delete(self, path):
         url = self.base_url.rstrip("/") + path
-        return requests.delete(url, auth=self.auth).json()
+        return requests.delete(url, auth=self.auth, headers=self.HEADERS).json()
 
     def jobs(self, all=False):
         if all:
