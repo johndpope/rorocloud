@@ -5,7 +5,7 @@ from tabulate import tabulate
 import getpass
 import click
 from .client import Client, config
-import web
+from .utils import datestr
 
 # initialized in cli
 client = None
@@ -63,7 +63,7 @@ def status(all=False):
         end = _parse_time(job.end_time)
         total_time = (end - start)
         total_time = timedelta(total_time.days, total_time.seconds)
-        rows.append([job.id, job.status, web.datestr(start), str(total_time), job.command])
+        rows.append([job.id, job.status, datestr(start), str(total_time), job.command])
     print(tabulate(rows, headers=['JOBID', 'STATUS', 'WHEN', 'TIME', 'CMD']))
 
 def _parse_time(timestr):
