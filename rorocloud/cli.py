@@ -63,7 +63,7 @@ def run(command, shell=None, foreground=False):
         rorocloud run python myscript.py
     """
     job = client.run(command, shell=shell)
-    print("-- created new job", job.id)
+    print("created new job", job.id)
     if foreground:
         _logs(job.id, follow=True)
 
