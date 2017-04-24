@@ -6,16 +6,30 @@ import getpass
 import click
 from .client import Client, config
 from .utils import datestr
+from . import __version__
 
 # initialized in cli
 client = None
 
 @click.group()
+@click.version_option(version=__version__)
 def cli():
     """rorocloud is the command-line interface to the rorocloud service.
     """
     global client
     client = Client()
+
+
+@cli.command()
+def help():
+    """Show this help message."""
+    cli.main(args=[])
+
+
+@cli.command()
+def version():
+    """Prints the version of rorocloud client."""
+    cli.main(args=["--version"])
 
 
 @cli.command()
