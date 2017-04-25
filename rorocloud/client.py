@@ -78,7 +78,8 @@ class Client(object):
         try:
             response = requests.request(method, url,
                 auth=self.auth,
-                headers=self.HEADERS)
+                headers=self.HEADERS,
+                **kwargs)
         except requests.exceptions.ConnectionError:
             logger.error("ERROR: Unable to connect to the rorocloud server.")
             sys.exit(1)
