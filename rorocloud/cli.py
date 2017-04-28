@@ -172,7 +172,11 @@ def stop(job_id):
 @click.argument("source")
 @click.argument("target")
 def put(source, target):
-    """Puts a file.
+    """Copies a file from the local mahcine into the cloud.
+
+    Usage:
+
+        rorocloud put helloworld.py /data/helloworld.py
     """
     return client.put_file(source, target)
 

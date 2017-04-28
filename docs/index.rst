@@ -88,6 +88,15 @@ The jupyter notebook server will continue to run even after closing the browser 
 
 The notebooks will be stored in ``/data/notebooks`` directory.
 
+Copying files
+^^^^^^^^^^^^^
+
+The `put` command copies a local file into the cloud.
+
+For example, to copy a file `hello.py` from current directory to `/data`::
+
+	$ rorocloud put hello.py /data/hello.py
+
 Status of Jobs
 ^^^^^^^^^^^^^^
 
