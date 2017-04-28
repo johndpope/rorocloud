@@ -141,7 +141,8 @@ def _logs(job_id, follow=False, show_timestamp=False, end_marker=None):
             while True:
                 response = client.get_logs(job_id)
                 logs = response.get('logs', [])
-                yield from logs[seen:]
+                for log in logs[seen:]:
+                    yield log
                 seen = len(logs)
                 job = client.get_job(job_id)
                 if job.status in ['success', 'cancelled', 'failed']:
@@ -149,7 +150,10 @@ def _logs(job_id, follow=False, show_timestamp=False, end_marker=None):
                 time.sleep(0.5)
         else:
             response = client.get_logs(job_id)
-            yield from response.get("logs") or []
+            logs = response.get("logs") or []
+            for log in logs:
+                yield log
+
 
     logs = get_logs(job_id, follow)
     if end_marker:
