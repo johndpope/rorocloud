@@ -85,7 +85,10 @@ def status(all=False):
 def _parse_time(timestr):
     if not timestr:
         return datetime.utcnow()
-    return datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S.%f")
+    try:
+        return datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        return datetime.strptime(timestr, "%Y-%m-%d %H:%M:%S")
 
 @cli.command()
 @click.option("-f", "--follow", default=False, is_flag=True)
