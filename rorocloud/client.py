@@ -114,8 +114,11 @@ class Client(object):
         path = "/jobs/" + job_id
         self.delete(path)
 
-    def run(self, command, shell=False):
-        payload = {"command": list(command)}
+    def run(self, command, workdir=None, shell=False):
+        details = {}
+        if workdir:
+            details['workdir'] = workdir
+        payload = {"command": list(command), "details": details}
         data = self.post("/jobs", payload)
         return Job(data)
 

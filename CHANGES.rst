@@ -4,6 +4,8 @@ rorocloud changelog
 Unreleased
 ----------
 
+* Added run:notebook command.
+* Fixed Python 2 compatibility.
 * The ``status`` command is changed to display only the active jobs and ``--all`` option is added to show all the jobs.
 * Added ``help`` and ``version`` commands.
 

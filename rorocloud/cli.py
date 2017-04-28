@@ -1,6 +1,7 @@
 from __future__ import print_function
 from builtins import input
 import time
+import itertools
 from datetime import datetime, timedelta
 from tabulate import tabulate
 import getpass
@@ -53,19 +54,36 @@ def whoami():
 
 @cli.command(context_settings={"allow_interspersed_args": False})
 @click.argument("command", nargs=-1)
-@click.option("--shell/--no-shell", default=False, help="execute the given command using shell")
+#@click.option("--shell/--no-shell", default=False, help="execute the given command using shell")
+@click.option("-w", "--workdir")
 @click.option("--foreground", default=False, is_flag=True)
-def run(command, shell=None, foreground=False):
+def run(command, shell=None, workdir=None, foreground=False):
     """Runs a command in the cloud.
 
     Typical usage:
 
         rorocloud run python myscript.py
     """
-    job = client.run(command, shell=shell)
+    _run(command, shell=shell, workdir=workdir, foreground=foreground)
+
+def _run(command, shell=None, workdir=None, foreground=False):
+    job = client.run(command, shell=shell, workdir=workdir)
     print("created new job", job.id)
     if foreground:
         _logs(job.id, follow=True)
+    return job
+
+
+@cli.command(name="run:notebook")
+@click.option("-w", "--workdir")
+def run_notebook(**kwargs):
+    """Starts jupyter notebook.
+
+    The notebooks will be saved in /data/notebooks directory.
+    """
+    job = _run(["/opt/rorodata/jupyter-notebook"], **kwargs)
+    _logs(job.id, follow=True, end_marker="-" * 40)
+
 
 @cli.command()
 @click.option("-a","--all", default=False, is_flag=True)
@@ -114,26 +132,30 @@ def _display_logs(logs, show_timestamp=False):
         print(log_pattern.format(**line))
 
 
-def _logs(job_id, follow=False, show_timestamp=False):
+def _logs(job_id, follow=False, show_timestamp=False, end_marker=None):
     """Shows the logs of job_id.
     """
-    if follow:
-        seen = 0
-        while True:
-            response = client.get_logs(job_id)
-            logs = response.get('logs', [])
-            _display_logs(logs[seen:], show_timestamp=show_timestamp)
-            seen = len(logs)
-            job = client.get_job(job_id)
-            if job.status in ['success', 'cancelled', 'failed']:
-                break
-            time.sleep(0.5)
-    else:
-        response = client.get_logs(job_id)
-        if response.get('message', None):
-            print(response['message'])
+    def get_logs(job_id, follow=False):
+        if follow:
+            seen = 0
+            while True:
+                response = client.get_logs(job_id)
+                logs = response.get('logs', [])
+                yield from logs[seen:]
+                seen = len(logs)
+                job = client.get_job(job_id)
+                if job.status in ['success', 'cancelled', 'failed']:
+                    break
+                time.sleep(0.5)
         else:
-            _display_logs(response.get('logs'), show_timestamp=show_timestamp)
+            response = client.get_logs(job_id)
+            yield from response.get("logs") or []
+
+    logs = get_logs(job_id, follow)
+    if end_marker:
+        logs = itertools.takewhile(lambda log: not log['message'].startswith(end_marker), logs)
+
+    _display_logs(logs, show_timestamp=show_timestamp)
 
 @cli.command()
 @click.argument("job_id")
