@@ -122,7 +122,7 @@ def _logs(job_id, follow=False, show_timestamp=False):
             _display_logs(logs[seen:], show_timestamp=show_timestamp)
             seen = len(logs)
             job = client.get_job(job_id)
-            if job.status == 'command exited':
+            if job.status in ['success', 'cancelled', 'failed']:
                 break
             time.sleep(0.5)
     else:
