@@ -139,6 +139,13 @@ def stop(job_id):
     """
     client.stop_job(job_id)
 
+@cli.command()
+@click.argument("source")
+@click.argument("target")
+def put(source, target):
+    """Puts a file.
+    """
+    return client.put_file(source, target)
 
 def main():
     cli()

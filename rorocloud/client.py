@@ -128,6 +128,11 @@ class Client(object):
         else:
             print("Login failed.", file=sys.stderr)
 
+    def put_file(self, source, target):
+        payload = open(source, 'rb')
+        files = { 'file': payload }
+        return self._request("POST", "/upload?path="+target, files=files)
+
     def whoami(self):
         return self.get("/whoami")
 
