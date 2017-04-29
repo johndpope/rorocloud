@@ -1,8 +1,8 @@
 rorocloud changelog
 ===================
 
-Unreleased
-----------
+version 0.1.3 - 2017-04-29
+--------------------------
 
 * Added put command.
 * Added run:notebook command.
