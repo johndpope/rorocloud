@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from tabulate import tabulate
 import getpass
 import click
-from .client import Client, config
+from .client import Client, config, UnAuthorizedException
 from .utils import datestr, truncate, setup_logger
 from . import __version__
 
@@ -39,9 +39,12 @@ def version():
 def login():
     """Log into rorocloud service.
     """
-    email = input("E-mail: ")
-    pw = getpass.getpass("Password: ")
-    client.login(email, pw)
+    try:
+        email = input("E-mail: ")
+        pw = getpass.getpass("Password: ")
+        client.login(email, pw)
+    except UnAuthorizedException:
+        print('Login failed')
 
 
 @cli.command()
