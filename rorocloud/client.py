@@ -28,6 +28,52 @@ config = {
     "ROROCLOUD_URL": "https://rorocloud.rorodata.com/"
 }
 
+class AuthProvider:
+    def get_auth(self):
+        raise NotImplementedError()
+
+    def set_auth(self, email, token):
+        raise NotImplementedError()
+
+class FileAuthProvider:
+    def __init__(self):
+        self._configfile = join(expanduser("~"), ".rorocloudrc")
+        self.auth = self._read_auth()
+
+    def get_auth(self):
+        return self.auth
+
+    def set_auth(self, email, token):
+        self._write_auth(email, token)
+
+    def _read_auth(self):
+        if not exists(self._configfile):
+            return
+
+        p = configparser.ConfigParser()
+        p.read(self._configfile)
+        try:
+            email = p.get("default", "email")
+            token = p.get("default", "token")
+            return (email, token)
+        except configparser.NoOptionError:
+            pass
+
+    def _write_auth(self, email, token):
+        p = configparser.ConfigParser()
+        p.read(self._configfile)
+
+        if not p.has_section("default"):
+            p.add_section("default")
+
+        p.set("default", "email", email)
+        p.set("default", "token", token)
+
+        with open(self._configfile, "w") as f:
+            p.write(f)
+
+        print("Token saved in", self._configfile)
+
 class Client(object):
     """The rorocloud client.
     """
@@ -49,7 +95,7 @@ class Client(object):
         auth = self.auth_provider.get_auth()
         try:
             response = requests.request(method, url,
-                auth=self.auth,
+                auth=self.auth_provider.get_auth(),
                 headers=self.HEADERS,
                 **kwargs)
         except requests.exceptions.ConnectionError:
@@ -99,7 +145,7 @@ class Client(object):
         data = self.post("/login", payload)
         if "token" not in data:
             raise UnAuthorizedException()
-        self.auth_provider.set_auth(email, token)
+        self.auth_provider.set_auth(email, data['token'])
 
     def put_file(self, source, target):
         payload = open(source, 'rb')
@@ -121,49 +167,5 @@ class Job(object):
         self.start_time = data["start_time"]
         self.end_time = data["end_time"]
 
-class AuthProvider:
-    def get_auth(self):
-        raise NotImplementedError()
-
-    def set_auth(self, email, token):
-        raise NotImplementedError()
-
-class FileAuthProvider:
-    def __init__(self):
-        self.auth = self._read_auth()
-
-    def get_auth(self):
-        return self.auth
-
-    def set_auth(self, email, token):
-        self._write_auth(self, email, token)
-
-    def _read_auth(self):
-        if not exists(self._configfile):
-            return
-
-        p = configparser.ConfigParser()
-        p.read(self._configfile)
-        try:
-            email = p.get("default", "email")
-            token = p.get("default", "token")
-            return (email, token)
-        except configparser.NoOptionError:
-            pass
-
-    def _write_auth(self, email, token):
-        p = configparser.ConfigParser()
-        p.read(self._configfile)
-
-        if not p.has_section("default"):
-            p.add_section("default")
-
-        p.set("default", "email", email)
-        p.set("default", "token", token)
-
-        with open(self._configfile, "w") as f:
-            p.write(f)
-
-        print("Token saved in", self._configfile)
 class UnAuthorizedException(Exception):
     pass
