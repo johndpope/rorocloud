@@ -6,9 +6,11 @@
 rorocloud
 =========
 
-rorocloud is a service to run user's code in pre-configured compute environments in the cloud.
+rorocloud is a serverless platform to run data science experiements and notebooks in the pre-configured compute environments in the cloud.
 
-The primary interface to interact with the rorocloud service is via a command-line tool called ``rorocloud``.
+The simple interface allows data scientists to start running their experiements in the cloud with in minutes.
+
+The primary interface to interact with the rorocloud service is a command-line tool called ``rorocloud``.
 
 Installation
 ------------
@@ -40,7 +42,7 @@ After login, your credentials will be saved permanently on your local computer. 
 	$ rorocloud whoami
 	anand@rorodata.com
 
-You need to have a valid login to use this service. Please write to us at ``rorodata.team@gmail.com`` if you don't already have one.
+You need to have a valid login to use this service. Please write to us at ``anand@rorodata.com`` if you don't already have one.
 
 Running Hello world
 ^^^^^^^^^^^^^^^^^^^
@@ -77,7 +79,7 @@ Jupyter notebooks are natively supported in rorodata. To start a jupyter noteboo
 	starting the job
 	executing command
 	Jupyter notebook is available at:
-	http://60984179.apps.rorocloud.io/?token=rorocloud
+	https://60984179-nb.rorocloud.io/?token=rorocloud
 
 	The jupyter notebook server can be stopped using:
 	    rorocloud stop 60984179
@@ -107,3 +109,27 @@ The status of currently running jobs be seen using::
 	--------  --------  --------------  -------  ------------------------------
 	60984179  running   14 minutes ago  0:14:18  /opt/rorodata/jupyter-notebook
 	74ee24a1  running   24 minutes ago  0:24:47  python train.py
+
+Tips & Tricks
+-------------
+
+Downloading a dataset
+^^^^^^^^^^^^^^^^^^^^^
+
+To download a dataset or any other file to rorocloud, simply run::
+
+	$ rorocloud run wget http://example.com/your/file
+
+Cloning a git repo
+^^^^^^^^^^^^^^^^^^
+
+To clone a git repo::
+
+	$ rorocloud run git clone https://github.com/rorodata/rorocloud-examples.git
+
+Support
+-------
+
+Please join `our slack channel <http://slack.rorocloud.io/>`_ to discuss about rorocloud.
+
+Found any issues? `Please report on github <https://github.com/rorodata/rorocloud/issues>`_.
