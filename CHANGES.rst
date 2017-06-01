@@ -1,6 +1,11 @@
 rorocloud changelog
 ===================
 
+version 0.1.4 - 2017-06-01
+--------------------------
+
+* Changes to allow using the rorocloud library in other applications.
+
 version 0.1.3 - 2017-04-29
 --------------------------
 
