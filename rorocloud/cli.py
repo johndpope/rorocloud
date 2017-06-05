@@ -187,5 +187,5 @@ def main():
     cli()
 
 def main_dev():
-    config["ROROCLOUD_URL"] = "https://rorocloud.staging.rorodata.com/"
+    config["ROROCLOUD_URL"] = "http://rorocloud-api.local.rorodata.com:8080/"
     cli()
