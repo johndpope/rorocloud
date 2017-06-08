@@ -46,8 +46,7 @@ class Client(object):
                 headers=self.HEADERS,
                 **kwargs)
         except requests.exceptions.ConnectionError:
-            logger.error("ERROR: Unable to connect to the rorocloud server.")
-            sys.exit(1)
+            raise ClientError("ERROR: Unable to connect to the rorocloud server.")
 
         return response
 
@@ -65,19 +64,19 @@ class Client(object):
         if all:
             response = self.get("/jobs?all=true")
             if response.status_code != 200:
-                self.handle_error(response)
+                return self.handle_error(response)
             return [Job(job) for job in response.json()]
         else:
             response = self.get("/jobs")
             if response.status_code != 200:
-                self.handle_error(response)
+                return self.handle_error(response)
             return [Job(job) for job in response.json()]
 
     def get_job(self, job_id):
         path = "/jobs/" + job_id
         response = self.get(path)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         return Job(response.json())
 
 
@@ -85,14 +84,14 @@ class Client(object):
         path = "/jobs/" + job_id + "/logs"
         response = self.get(path)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         return response.json()
 
     def stop_job(self, job_id):
         path = "/jobs/" + job_id
         response = self.delete(path)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
 
     def run(self, command, workdir=None, shell=False):
         details = {}
@@ -101,14 +100,14 @@ class Client(object):
         payload = {"command": list(command), "details": details}
         response = self.post("/jobs", payload)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         return Job(response.json())
 
     def login(self, email, password):
         payload = {"email": email, "password": password}
         response = self.post("/login", payload)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         data = response.json()
         if "token" not in data:
             raise UnAuthorizedException()
@@ -119,13 +118,13 @@ class Client(object):
         files = { 'file': payload }
         response = self._request("POST", "/upload?path="+target, files=files)
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         return response.json()
 
     def whoami(self):
         response = self.get("/whoami")
         if response.status_code != 200:
-            self.handle_error(response)
+            return self.handle_error(response)
         return response.json()
 
     def handle_error(self, response):
@@ -133,8 +132,7 @@ class Client(object):
             error_message = response.json()['error']
         except ValueError:
             error_message = 'unable to complete the request due to internal server error'
-        logger.error('ERROR ' + error_message)
-        sys.exit(1)
+        raise ClientError(error_message)
 
 class Job(object):
     def __init__(self, data):
@@ -148,4 +146,7 @@ class Job(object):
         self.end_time = data["end_time"]
 
 class UnAuthorizedException(Exception):
+    pass
+
+class ClientError(Exception):
     pass

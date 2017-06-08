@@ -13,7 +13,14 @@ from . import __version__
 # initialized in cli
 client = None
 
-@click.group()
+class CatchAllExceptions(click.Group):
+    def __call__(self, *args, **kwargs):
+        try:
+            return self.main(*args, **kwargs)
+        except Exception as exc:
+            click.echo('ERROR %s' % exc)
+
+@click.group(cls=CatchAllExceptions)
 @click.version_option(version=__version__)
 @click.option("--verbose", is_flag=True, default=False, help="Enable verbose logging")
 def cli(verbose=False):
