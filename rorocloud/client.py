@@ -64,47 +64,35 @@ class Client(object):
     def jobs(self, all=False):
         if all:
             response = self.get("/jobs?all=true")
-            if response.status_code == 200:
-                return [Job(job) for job in response.json()]
-            else:
-                logger.error('ERROR: ' + response.json()['error'])
-                sys.exit(1)
+            if response.status_code != 200:
+                self.handle_error(response)
+            return [Job(job) for job in response.json()]
         else:
             response = self.get("/jobs")
-            if response.status_code == 200:
-                return [Job(job) for job in response.json()]
-            else:
-                logger.error('ERROR: ' + response.json()['error'])
-                sys.exit(1)
+            if response.status_code != 200:
+                self.handle_error(response)
+            return [Job(job) for job in response.json()]
 
     def get_job(self, job_id):
         path = "/jobs/" + job_id
         response = self.get(path)
-        if response.status_code == 200:
-            return Job(response.json())
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
-            sys.exit(1)
+        if response.status_code != 200:
+            self.handle_error(response)
+        return Job(response.json())
 
 
     def get_logs(self, job_id):
         path = "/jobs/" + job_id + "/logs"
         response = self.get(path)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
-            sys.exit(1)
-
+        if response.status_code != 200:
+            self.handle_error(response)
+        return response.json()
 
     def stop_job(self, job_id):
         path = "/jobs/" + job_id
         response = self.delete(path)
-        if response.status_code == 200:
-            pass
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
-            sys.exit(1)
+        if response.status_code != 200:
+            self.handle_error(response)
 
     def run(self, command, workdir=None, shell=False):
         details = {}
@@ -112,40 +100,41 @@ class Client(object):
             details['workdir'] = workdir
         payload = {"command": list(command), "details": details}
         response = self.post("/jobs", payload)
-        if response.status_code == 200:
-            return Job(response.json())
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
-            sys.exit(1)
+        if response.status_code != 200:
+            self.handle_error(response)
+        return Job(response.json())
 
     def login(self, email, password):
         payload = {"email": email, "password": password}
         response = self.post("/login", payload)
-        if response.status_code == 200:
-            data = response.json()
-            if "token" not in data:
-                raise UnAuthorizedException()
-            self.auth_provider.set_auth(email, data['token'])
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
+        if response.status_code != 200:
+            self.handle_error(response)
+        data = response.json()
+        if "token" not in data:
+            raise UnAuthorizedException()
+        self.auth_provider.set_auth(email, data['token'])
 
     def put_file(self, source, target):
         payload = open(source, 'rb')
         files = { 'file': payload }
         response = self._request("POST", "/upload?path="+target, files=files)
-        if response.status_code == 200:
-            return response.json()
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
+        if response.status_code != 200:
+            self.handle_error(response)
+        return response.json()
 
     def whoami(self):
         response = self.get("/whoami")
-        if response.status_code == 200:
-            return response.json()
-        else:
-            logger.error('ERROR: ' + response.json()['error'])
-            sys.exit(1)
+        if response.status_code != 200:
+            self.handle_error(response)
+        return response.json()
 
+    def handle_error(self, response):
+        try:
+            error_message = response.json()['error']
+        except ValueError:
+            error_message = 'unable to complete the request due to internal server error'
+        logger.error('ERROR ' + error_message)
+        sys.exit(1)
 
 class Job(object):
     def __init__(self, data):
