@@ -49,7 +49,7 @@ class Client(object):
             logger.error("ERROR: Unable to connect to the rorocloud server.")
             sys.exit(1)
 
-        return response.json()
+        return response
 
     def get(self, path):
         return self._request("GET", path)
@@ -63,44 +63,88 @@ class Client(object):
 
     def jobs(self, all=False):
         if all:
-            return [Job(job) for job in self.get("/jobs?all=true")]
+            response = self.get("/jobs?all=true")
+            if response.status_code == 200:
+                return [Job(job) for job in response.json()]
+            else:
+                logger.error('ERROR: ' + response.json()['error'])
+                sys.exit(1)
         else:
-            return [Job(job) for job in self.get("/jobs")]
+            response = self.get("/jobs")
+            if response.status_code == 200:
+                return [Job(job) for job in response.json()]
+            else:
+                logger.error('ERROR: ' + response.json()['error'])
+                sys.exit(1)
 
     def get_job(self, job_id):
         path = "/jobs/" + job_id
-        return Job(self.get(path))
+        response = self.get(path)
+        if response.status_code == 200:
+            return Job(response.json())
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
+            sys.exit(1)
+
 
     def get_logs(self, job_id):
         path = "/jobs/" + job_id + "/logs"
-        return self.get(path)
+        response = self.get(path)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
+            sys.exit(1)
+
 
     def stop_job(self, job_id):
         path = "/jobs/" + job_id
-        self.delete(path)
+        response = self.delete(path)
+        if response.status_code == 200:
+            pass
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
+            sys.exit(1)
 
     def run(self, command, workdir=None, shell=False):
         details = {}
         if workdir:
             details['workdir'] = workdir
         payload = {"command": list(command), "details": details}
-        data = self.post("/jobs", payload)
-        return Job(data)
+        response = self.post("/jobs", payload)
+        if response.status_code == 200:
+            return Job(response.json())
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
+            sys.exit(1)
 
     def login(self, email, password):
         payload = {"email": email, "password": password}
-        data = self.post("/login", payload)
-        if "token" not in data:
-            raise UnAuthorizedException()
-        self.auth_provider.set_auth(email, data['token'])
+        response = self.post("/login", payload)
+        if response.status_code == 200:
+            data = response.json()
+            if "token" not in data:
+                raise UnAuthorizedException()
+            self.auth_provider.set_auth(email, data['token'])
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
 
     def put_file(self, source, target):
         payload = open(source, 'rb')
         files = { 'file': payload }
-        return self._request("POST", "/upload?path="+target, files=files)
+        response = self._request("POST", "/upload?path="+target, files=files)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
 
     def whoami(self):
-        return self.get("/whoami")
+        response = self.get("/whoami")
+        if response.status_code == 200:
+            return response.json()
+        else:
+            logger.error('ERROR: ' + response.json()['error'])
+            sys.exit(1)
 
 
 class Job(object):
