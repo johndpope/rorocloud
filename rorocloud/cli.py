@@ -1,5 +1,5 @@
 from __future__ import print_function
-from builtins import input
+
 import time
 import itertools
 from datetime import datetime, timedelta
@@ -7,8 +7,13 @@ from tabulate import tabulate
 import getpass
 import click
 from .client import Client, config, UnAuthorizedException
-from .utils import datestr, truncate, setup_logger
+from .utils import datestr, truncate, setup_logger, PY2
 from . import __version__
+
+if PY2:
+    # In Python 2, the input function takes in the input and evaluates it.
+    # To equivalant of Python3's input function is raw_input in Python2.
+    input = raw_input
 
 # initialized in cli
 client = None

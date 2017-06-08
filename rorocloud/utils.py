@@ -1,8 +1,11 @@
 import web
 import logging
+import sys
 
 logger = logging.getLogger("rorocloud")
 
+PY2 = (sys.version_info.major == 2)
+PY3 = (sys.version_info.major == 3)
 
 def setup_logger(verbose=False):
     if verbose:
