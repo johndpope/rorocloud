@@ -93,11 +93,15 @@ class Client(object):
         if response.status_code != 200:
             return self.handle_error(response)
 
-    def run(self, command, workdir=None, shell=False):
+    def run(self, command, workdir=None, shell=False, instance=None):
         details = {}
         if workdir:
             details['workdir'] = workdir
-        payload = {"command": list(command), "details": details}
+        payload = {
+            "command": list(command),
+            "instance_type": instance,
+            "details": details
+        }
         response = self.post("/jobs", payload)
         if response.status_code != 200:
             return self.handle_error(response)
@@ -144,6 +148,7 @@ class Job(object):
         self.status = data["status"]
         self.start_time = data["start_time"]
         self.end_time = data["end_time"]
+        self.instance_type = data["instance_type"]
 
 class UnAuthorizedException(Exception):
     pass
