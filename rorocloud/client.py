@@ -148,7 +148,7 @@ class Job(object):
         self.status = data["status"]
         self.start_time = data["start_time"]
         self.end_time = data["end_time"]
-        self.instance_type = data["instance_type"]
+        self.instance_type = data.get("instance_type")
 
 class UnAuthorizedException(Exception):
     pass
