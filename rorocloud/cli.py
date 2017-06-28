@@ -70,19 +70,22 @@ def whoami():
 @cli.command(context_settings={"allow_interspersed_args": False})
 @click.argument("command", nargs=-1)
 #@click.option("--shell/--no-shell", default=False, help="execute the given command using shell")
+@click.option("-i", "--instance", default="C1",
+    help="instance type to run the job on, Available instance types C1 and C2"
+)
 @click.option("-w", "--workdir")
 @click.option("--foreground", default=False, is_flag=True)
-def run(command, shell=None, workdir=None, foreground=False):
+def run(command, shell=None, instance=None, workdir=None, foreground=False):
     """Runs a command in the cloud.
 
     Typical usage:
 
         rorocloud run python myscript.py
     """
-    _run(command, shell=shell, workdir=workdir, foreground=foreground)
+    _run(command, shell=shell, instance=instance, workdir=workdir, foreground=foreground)
 
-def _run(command, shell=None, workdir=None, foreground=False):
-    job = client.run(command, shell=shell, workdir=workdir)
+def _run(command, shell=None, instance=None,workdir=None, foreground=False):
+    job = client.run(command, instance=instance, shell=shell, workdir=workdir)
     print("created new job", job.id)
     if foreground:
         _logs(job.id, follow=True)
@@ -112,8 +115,8 @@ def status(all=False):
         end = _parse_time(job.end_time)
         total_time = (end - start)
         total_time = timedelta(total_time.days, total_time.seconds)
-        rows.append([job.id, job.status, datestr(start), str(total_time), truncate(job.command, 50)])
-    print(tabulate(rows, headers=['JOBID', 'STATUS', 'WHEN', 'TIME', 'CMD']))
+        rows.append([job.id, job.status, datestr(start), str(total_time), job.instance_type, truncate(job.command, 50)])
+    print(tabulate(rows, headers=['JOBID', 'STATUS', 'WHEN', 'TIME', 'INSTANCE TYPE', 'CMD']))
 
 def _parse_time(timestr):
     if not timestr:
