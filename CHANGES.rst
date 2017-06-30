@@ -1,6 +1,15 @@
 rorocloud changelog
 ===================
 
+version 0.2.0 - 2017-06-30
+--------------------------
+
+* Added support for specifying the type of instance to use to run the job
+* Added `--gpu` flag to run/run:notebook jobs on GPU instances
+* Added experimental support for specifying
+* Better error handling
+* Fixed Python 2 compatability issues
+
 version 0.1.4 - 2017-06-01
 --------------------------
 
