@@ -98,11 +98,11 @@ def _run(command, shell=None, instance=None,workdir=None, foreground=False, dock
 
 
 @cli.command(name="run:notebook")
-@click.option("-i", "--instance", default="C1",
-    help="instance type to run the job on, Available instance types C1 and C2"
-)
 @click.option("--gpu", "instance", flag_value="G1",
     help="runs the job on GPU instance type"
+)
+@click.option("-i", "--instance", default="C1",
+    help="instance type to run the job on, Available instance types C1 and C2"
 )
 @click.option("--docker-image",
     help="docker image to use to run the job (experimental)"
