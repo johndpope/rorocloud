@@ -69,11 +69,11 @@ def whoami():
 
 @cli.command(context_settings={"allow_interspersed_args": False})
 @click.argument("command", nargs=-1)
-@click.option("-i", "--instance", default="C1",
-    help="instance type to run the job on, Available instance types C1 and C2"
-)
 @click.option("--gpu", "instance", flag_value="G1",
     help="runs the job on GPU instance type"
+)
+@click.option("-i", "--instance", "instance", default="C1",
+    help="instance type to run the job on; available instance types are C1, C2 and G1."
 )
 @click.option("--docker-image",
     help="docker image to use to run the job (experimental)"
