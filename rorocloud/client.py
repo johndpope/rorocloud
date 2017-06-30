@@ -93,7 +93,7 @@ class Client(object):
         if response.status_code != 200:
             return self.handle_error(response)
 
-    def run(self, command, workdir=None, shell=False, instance=None):
+    def run(self, command, workdir=None, shell=False, instance=None, docker_image=None):
         details = {}
         if workdir:
             details['workdir'] = workdir
@@ -102,6 +102,8 @@ class Client(object):
             "instance_type": instance,
             "details": details
         }
+        if 'docker_image':
+            payload['details']['docker_image'] = docker_image
         response = self.post("/jobs", payload)
         if response.status_code != 200:
             return self.handle_error(response)

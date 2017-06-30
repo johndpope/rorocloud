@@ -69,23 +69,25 @@ def whoami():
 
 @cli.command(context_settings={"allow_interspersed_args": False})
 @click.argument("command", nargs=-1)
-#@click.option("--shell/--no-shell", default=False, help="execute the given command using shell")
 @click.option("-i", "--instance", default="C1",
     help="instance type to run the job on, Available instance types C1 and C2"
 )
+@click.option("--docker-image", default="rorodata/sandbox",
+    help="docker image to use to run the job (experimental)"
+)
 @click.option("-w", "--workdir")
 @click.option("--foreground", default=False, is_flag=True)
-def run(command, shell=None, instance=None, workdir=None, foreground=False):
+def run(command, shell=None, instance=None, workdir=None, foreground=False, docker_image=None):
     """Runs a command in the cloud.
 
     Typical usage:
 
         rorocloud run python myscript.py
     """
-    _run(command, shell=shell, instance=instance, workdir=workdir, foreground=foreground)
+    _run(command, shell=shell, instance=instance, workdir=workdir, foreground=foreground, docker_image=docker_image)
 
-def _run(command, shell=None, instance=None,workdir=None, foreground=False):
-    job = client.run(command, instance=instance, shell=shell, workdir=workdir)
+def _run(command, shell=None, instance=None,workdir=None, foreground=False, docker_image=None):
+    job = client.run(command, instance=instance, shell=shell, workdir=workdir, docker_image=docker_image)
     print("created new job", job.id)
     if foreground:
         _logs(job.id, follow=True)
@@ -93,6 +95,9 @@ def _run(command, shell=None, instance=None,workdir=None, foreground=False):
 
 
 @cli.command(name="run:notebook")
+@click.option("--docker-image", default="rorodata/sandbox",
+    help="docker image to use to run the job (experimental)"
+)
 @click.option("-w", "--workdir")
 def run_notebook(**kwargs):
     """Starts jupyter notebook.
