@@ -75,7 +75,7 @@ def whoami():
 @click.option("--gpu", "instance", flag_value="G1",
     help="runs the job on GPU instance type"
 )
-@click.option("--docker-image", default="rorodata/sandbox",
+@click.option("--docker-image",
     help="docker image to use to run the job (experimental)"
 )
 @click.option("-w", "--workdir")
@@ -104,7 +104,7 @@ def _run(command, shell=None, instance=None,workdir=None, foreground=False, dock
 @click.option("--gpu", "instance", flag_value="G1",
     help="runs the job on GPU instance type"
 )
-@click.option("--docker-image", default="rorodata/sandbox",
+@click.option("--docker-image",
     help="docker image to use to run the job (experimental)"
 )
 @click.option("-w", "--workdir")
