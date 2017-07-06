@@ -1,6 +1,11 @@
 rorocloud changelog
 ===================
 
+version 0.2.3 - 2017-07-06
+--------------------------
+
+* Fixed login failure for new users using Python 2
+
 version 0.2.2 - 2017-07-01
 --------------------------
 
