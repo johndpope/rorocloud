@@ -14,8 +14,10 @@ class AuthProvider:
         raise NotImplementedError()
 
 class FileAuthProvider:
-    def __init__(self):
-        self._configfile = join(expanduser("~"), ".rorocloudrc")
+    def __init__(self, configfile=None):
+        if configfile is None:
+            configfile = join(expanduser("~"), ".rorocloudrc")
+        self._configfile = configfile
         self.auth = self._read_auth()
 
     def get_auth(self):
