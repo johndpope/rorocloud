@@ -10,3 +10,5 @@ class TestFileAuthProvider:
         assert 'test-username' in contents
         assert 'test-password' in contents
 
+        auth_provider = FileAuthProvider(configfile=path)
+        assert auth_provider.auth == ("test-username", "test-password")
