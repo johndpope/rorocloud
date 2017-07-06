@@ -1,3 +1,4 @@
+from __future__ import print_function
 from os.path import expanduser, join, exists
 
 try:
@@ -14,8 +15,10 @@ class AuthProvider:
         raise NotImplementedError()
 
 class FileAuthProvider:
-    def __init__(self):
-        self._configfile = join(expanduser("~"), ".rorocloudrc")
+    def __init__(self, configfile=None):
+        if configfile is None:
+            configfile = join(expanduser("~"), ".rorocloudrc")
+        self._configfile = configfile
         self.auth = self._read_auth()
 
     def get_auth(self):
@@ -31,8 +34,8 @@ class FileAuthProvider:
         p = configparser.ConfigParser()
         p.read(self._configfile)
         try:
-            email = p.get("default", "email")
-            token = p.get("default", "token")
+            email = p.get("DEFAULT", "email")
+            token = p.get("DEFAULT", "token")
             return (email, token)
         except configparser.NoOptionError:
             pass
@@ -41,11 +44,8 @@ class FileAuthProvider:
         p = configparser.ConfigParser()
         p.read(self._configfile)
 
-        if not p.has_section("default"):
-            p.add_section("default")
-
-        p.set("default", "email", email)
-        p.set("default", "token", token)
+        p.set("DEFAULT", "email", email)
+        p.set("DEFAULT", "token", token)
 
         with open(self._configfile, "w") as f:
             p.write(f)
